@@ -44,6 +44,7 @@ public class FlutterDownloaderPlugin implements MethodCallHandler, FlutterPlugin
     private Context context;
     private long callbackHandle;
     private int debugMode;
+    private int stepUpdate;
     private final Object initializationLock = new Object();
 
     @SuppressLint("NewApi")
@@ -130,6 +131,7 @@ public class FlutterDownloaderPlugin implements MethodCallHandler, FlutterPlugin
                         .putBoolean(DownloadWorker.ARG_IS_RESUME, isResume)
                         .putLong(DownloadWorker.ARG_CALLBACK_HANDLE, callbackHandle)
                         .putBoolean(DownloadWorker.ARG_DEBUG, debugMode == 1)
+                        .putInt(DownloadWorker.ARG_STEP_UPDATE, stepUpdate)
                         .build()
                 )
                 .build();
@@ -158,6 +160,7 @@ public class FlutterDownloaderPlugin implements MethodCallHandler, FlutterPlugin
     private void registerCallback(MethodCall call, MethodChannel.Result result) {
         List args = (List) call.arguments;
         callbackHandle = Long.parseLong(args.get(0).toString());
+        stepUpdate = Integer.parseInt(args.get(1).toString());
         result.success(null);
     }
 
