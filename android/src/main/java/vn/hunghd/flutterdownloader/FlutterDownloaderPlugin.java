@@ -47,6 +47,14 @@ public class FlutterDownloaderPlugin implements MethodCallHandler, FlutterPlugin
     private int stepUpdate;
     private final Object initializationLock = new Object();
 
+    private String msgStarted = "started";
+    private String msgInProgress = "in progress";
+    private String msgPaused = "paused";
+    private String msgFailed = "failed";
+    private String msgComplete = "complete";
+    private String msgCanceled = "canceled";
+    private boolean openAppFromNotification = false;
+
     @SuppressLint("NewApi")
     public static void registerWith(PluginRegistry.Registrar registrar) {
         if (instance == null) {
@@ -132,6 +140,13 @@ public class FlutterDownloaderPlugin implements MethodCallHandler, FlutterPlugin
                         .putLong(DownloadWorker.ARG_CALLBACK_HANDLE, callbackHandle)
                         .putBoolean(DownloadWorker.ARG_DEBUG, debugMode == 1)
                         .putInt(DownloadWorker.ARG_STEP_UPDATE, stepUpdate)
+                        .putString(DownloadWorker.ARG_MESSAGE_STARTED, msgStarted)
+                        .putString(DownloadWorker.ARG_MESSAGE_IN_PROGRESS, msgInProgress)
+                        .putString(DownloadWorker.ARG_MESSAGE_PAUSED, msgPaused)
+                        .putString(DownloadWorker.ARG_MESSAGE_FAILED, msgFailed)
+                        .putString(DownloadWorker.ARG_MESSAGE_COMPLETE, msgComplete)
+                        .putString(DownloadWorker.ARG_MESSAGE_CANCELED, msgCanceled)
+                        .putBoolean(DownloadWorker.ARG_OPEN_APPLICATION_FROM_NOTIFICATION, openAppFromNotification)
                         .build()
                 )
                 .build();
@@ -169,6 +184,13 @@ public class FlutterDownloaderPlugin implements MethodCallHandler, FlutterPlugin
         String savedDir = call.argument("saved_dir");
         String filename = call.argument("file_name");
         String headers = call.argument("headers");
+        msgStarted = call.argument("msg_started");
+        msgInProgress = call.argument("msg_inprogress");
+        msgPaused = call.argument("msg_paused");
+        msgFailed = call.argument("msg_failed");
+        msgComplete = call.argument("msg_complete");
+        msgCanceled = call.argument("msg_canceled");
+        openAppFromNotification = call.argument("open_application_from_notification");
         boolean showNotification = call.argument("show_notification");
         boolean openFileFromNotification = call.argument("open_file_from_notification");
         boolean requiresStorageNotLow = call.argument("requires_storage_not_low");
