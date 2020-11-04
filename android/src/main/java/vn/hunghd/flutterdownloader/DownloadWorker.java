@@ -373,7 +373,7 @@ public class DownloadWorker extends Worker implements MethodChannel.MethodCallHa
                         addImageOrVideoToGallery(filename, saveFilePath, getContentTypeWithoutCharset(contentType));
                     }
                     if(clickToOpenApplication){
-                        Intent resultIntent = getPackageManager().getLaunchIntentForPackage(getPackageName());
+                        Intent resultIntent = getApplicationContext().getPackageManager().getLaunchIntentForPackage(getApplicationContext().getPackageName());
                         pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                     }
                     else if (clickToOpenDownloadedFile && storage == PackageManager.PERMISSION_GRANTED) {
