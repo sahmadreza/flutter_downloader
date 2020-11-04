@@ -58,3 +58,27 @@ class DownloadTask {
   String toString() =>
       "DownloadTask(taskId: $taskId, status: $status, progress: $progress, url: $url, filename: $filename, savedDir: $savedDir, timeCreated: $timeCreated)";
 }
+
+///
+/// A model class for notification lang
+class DownloaderNotificationMessages {
+  final String messageNotificationStarted;
+  final String messageNotificationInProgress;
+  final String messageNotificationCanceled;
+  final String messageNotificationFailed;
+  final String messageNotificationPaused;
+  final String messageNotificationComplete;
+
+  DownloaderNotificationMessages({
+    this.messageNotificationStarted = 'started',
+    this.messageNotificationInProgress = 'in progress',
+    this.messageNotificationCanceled = 'canceled',
+    this.messageNotificationFailed = 'failed',
+    this.messageNotificationPaused = 'complete',
+    this.messageNotificationComplete = 'paused',
+  });
+
+  @override
+  String toString() =>
+      "DownloaderNotificationMessages(messageNotificationStarted: $messageNotificationStarted)";
+}

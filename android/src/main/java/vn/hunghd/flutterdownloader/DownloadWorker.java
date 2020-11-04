@@ -58,12 +58,20 @@ import io.flutter.view.FlutterRunArguments;
 
 public class DownloadWorker extends Worker implements MethodChannel.MethodCallHandler {
     public static final String ARG_URL = "url";
+    public static final String ARG_MESSAGE_STARTED = "msg_started";
+    public static final String ARG_MESSAGE_IN_PROGRESS = "msg_inprogress";
+    public static final String ARG_MESSAGE_PAUSED = "msg_paused";
+    public static final String ARG_MESSAGE_FAILED = "msg_failed";
+    public static final String ARG_MESSAGE_COMPLETE = "msg_complete";
+    public static final String ARG_MESSAGE_CANCELED = "msg_canceled";
     public static final String ARG_FILE_NAME = "file_name";
     public static final String ARG_SAVED_DIR = "saved_file";
     public static final String ARG_HEADERS = "headers";
     public static final String ARG_IS_RESUME = "is_resume";
     public static final String ARG_SHOW_NOTIFICATION = "show_notification";
     public static final String ARG_OPEN_FILE_FROM_NOTIFICATION = "open_file_from_notification";
+    public static final String ARG_OPEN_APPLICATION_FROM_NOTIFICATION = "open_application_from_notification";
+    
     public static final String ARG_CALLBACK_HANDLE = "callback_handle";
     public static final String ARG_DEBUG = "debug";
 
@@ -85,6 +93,7 @@ public class DownloadWorker extends Worker implements MethodChannel.MethodCallHa
     private NotificationCompat.Builder builder;
     private boolean showNotification;
     private boolean clickToOpenDownloadedFile;
+    private boolean clickToOpenApplication;
     private boolean debug;
     private int lastProgress = 0;
     private int primaryId;
@@ -169,20 +178,20 @@ public class DownloadWorker extends Worker implements MethodChannel.MethodCallHa
         boolean isResume = getInputData().getBoolean(ARG_IS_RESUME, false);
         debug = getInputData().getBoolean(ARG_DEBUG, false);
         stepUpdate = getInputData().getInt(ARG_STEP_UPDATE, 10);
-
         Resources res = getApplicationContext().getResources();
-        msgStarted = res.getString(R.string.flutter_downloader_notification_started);
-        msgInProgress = res.getString(R.string.flutter_downloader_notification_in_progress);
-        msgCanceled = res.getString(R.string.flutter_downloader_notification_canceled);
-        msgFailed = res.getString(R.string.flutter_downloader_notification_failed);
-        msgPaused = res.getString(R.string.flutter_downloader_notification_paused);
-        msgComplete = res.getString(R.string.flutter_downloader_notification_complete);
+        
+        msgStarted = getInputData().getString(ARG_MESSAGE_STARTED);
+        msgInProgress = getInputData().getString(ARG_MESSAGE_IN_PROGRESS);
+        msgCanceled = getInputData().getString(ARG_MESSAGE_CANCELED);
+        msgFailed = getInputData().getString(ARG_MESSAGE_FAILED);
+        msgPaused = getInputData().getString(ARG_MESSAGE_PAUSED);
+        msgComplete = getInputData().getString(ARG_MESSAGE_COMPLETE);
 
         log("DownloadWorker{url=" + url + ",filename=" + filename + ",savedDir=" + savedDir + ",header=" + headers + ",isResume=" + isResume);
 
         showNotification = getInputData().getBoolean(ARG_SHOW_NOTIFICATION, false);
         clickToOpenDownloadedFile = getInputData().getBoolean(ARG_OPEN_FILE_FROM_NOTIFICATION, false);
-
+        clickToOpenApplication = getInputData().getBoolean(ARG_OPEN_APPLICATION_FROM_NOTIFICATION, false);
         DownloadTask task = taskDao.loadTask(getId().toString());
         primaryId = task.primaryId;
 
@@ -359,11 +368,15 @@ public class DownloadWorker extends Worker implements MethodChannel.MethodCallHa
                 int storage = ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 PendingIntent pendingIntent = null;
                 if (status == DownloadStatus.COMPLETE) {
+                    
                     if (isImageOrVideoFile(contentType) && isExternalStoragePath(saveFilePath)) {
                         addImageOrVideoToGallery(filename, saveFilePath, getContentTypeWithoutCharset(contentType));
                     }
-
-                    if (clickToOpenDownloadedFile && storage == PackageManager.PERMISSION_GRANTED) {
+                    if(clickToOpenApplication){
+                        Intent resultIntent = getPackageManager().getLaunchIntentForPackage(getPackageName());
+                        pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    }
+                    else if (clickToOpenDownloadedFile && storage == PackageManager.PERMISSION_GRANTED) {
                         Intent intent = IntentUtils.validatedFileIntent(getApplicationContext(), saveFilePath, contentType);
                         if (intent != null) {
                             log("Setting an intent to open the file " + saveFilePath);

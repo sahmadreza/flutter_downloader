@@ -65,14 +65,17 @@ class FlutterDownloader {
   static Future<String> enqueue(
       {@required String url,
       @required String savedDir,
+      DownloaderNotificationMessages notificationMessages = null,
       String fileName,
       Map<String, String> headers,
       bool showNotification = true,
+      bool openApplicationFromNotification = false,
       bool openFileFromNotification = true,
       bool requiresStorageNotLow = true}) async {
     assert(_initialized, 'FlutterDownloader.initialize() must be called first');
     assert(Directory(savedDir).existsSync());
-
+    if (notificationMessages == null)
+      notificationMessages = new DownloaderNotificationMessages();
     StringBuffer headerBuilder = StringBuffer();
     if (headers != null) {
       headerBuilder.write('{');
@@ -87,9 +90,16 @@ class FlutterDownloader {
         'url': url,
         'saved_dir': savedDir,
         'file_name': fileName,
+        'msg_started': notificationMessages.messageNotificationStarted,
+        'msg_inprogress': notificationMessages.messageNotificationInProgress,
+        'msg_paused': notificationMessages.messageNotificationPaused,
+        'msg_failed': notificationMessages.messageNotificationFailed,
+        'msg_complete': notificationMessages.messageNotificationComplete,
+        'msg_canceled': notificationMessages.messageNotificationCanceled,
         'headers': headerBuilder.toString(),
         'show_notification': showNotification,
         'open_file_from_notification': openFileFromNotification,
+        'open_application_from_notification': openApplicationFromNotification,
         'requires_storage_not_low': requiresStorageNotLow,
       });
       return taskId;
@@ -389,7 +399,8 @@ class FlutterDownloader {
     final callbackHandle = PluginUtilities.getCallbackHandle(callback);
     assert(callbackHandle != null,
         'callback must be a top-level or a static function');
-    assert(stepSize >= 0 && stepSize <= 100, 'Step size should be between 0-100');
+    assert(
+        stepSize >= 0 && stepSize <= 100, 'Step size should be between 0-100');
     _channel.invokeMethod(
         'registerCallback', <dynamic>[callbackHandle.toRawHandle(), stepSize]);
   }
