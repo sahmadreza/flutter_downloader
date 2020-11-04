@@ -74,8 +74,8 @@ class DownloaderNotificationMessages {
     this.messageNotificationInProgress = 'in progress',
     this.messageNotificationCanceled = 'canceled',
     this.messageNotificationFailed = 'failed',
-    this.messageNotificationPaused = 'complete',
-    this.messageNotificationComplete = 'paused',
+    this.messageNotificationPaused = 'paused',
+    this.messageNotificationComplete = 'complete',
   });
 
   @override
